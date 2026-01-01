@@ -12,6 +12,7 @@
     "volume": "ts-node -e \"import('./simulate.js').then(m => m.simulateVolumeSwap(process.argv[1], process.argv[2], process.argv[3], parseFloat(process.argv[4]), parseInt(process.argv[5] || '500')))\""
   },
   "dependencies": {
+    "@raydium-io/raydium-sdk": "^1.3.1-beta.58",
     "@solana/spl-token": "^0.3.9",
     "@solana/web3.js": "^1.87.6",
     "borsh": "^0.7.0",
