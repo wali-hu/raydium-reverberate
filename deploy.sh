@@ -2,7 +2,7 @@
 
 # Build the program
 echo "Building Solana program..."
-cargo build-bpf --manifest-path=Cargo.toml --bpf-out-dir=target/deploy
+cargo build-sbf --manifest-path=Cargo.toml --sbf-out-dir=target/deploy
 
 # Deploy to devnet
 echo "Deploying to devnet..."
