@@ -50,6 +50,7 @@ async function executeAtomicSwap() {
     // Pool and token addresses (from our decoded data)
     const RAYDIUM_PROGRAM = new PublicKey("DRaya7Kj3aMWQSy19kSjvmuwq9docCHofyP9kanQGaav");
     const POOL_ID = new PublicKey("83KtdsfcyB336kH8b3JRoWMLngc9q9MfAUcd8SdQegJn");
+    const AMM_AUTHORITY = new PublicKey("DRayqG9RXYi8WHgWEmRQGrUWRWbhjYWYkCRJDd6JBBak"); // Real authority
     const BASE_VAULT = new PublicKey("2meN5DuUivsc8GkSou5vDRXYEx41BfpT9GLLADwetuMD");
     const QUOTE_VAULT = new PublicKey("sWDtX6Xv6aQETZuYeBwJi3VWf8b81j6vUXSjV58hapK");
     const OPEN_ORDERS = new PublicKey("Cikw3ag5C5BRnj5MsnmfZNYHHpup669TjSxWT7JHdpc1");
@@ -89,7 +90,7 @@ async function executeAtomicSwap() {
       keys: [
         { pubkey: RAYDIUM_PROGRAM, isSigner: false, isWritable: false },
         { pubkey: POOL_ID, isSigner: false, isWritable: true },
-        { pubkey: wallet.publicKey, isSigner: false, isWritable: false }, // authority placeholder
+        { pubkey: AMM_AUTHORITY, isSigner: false, isWritable: false }, // Real authority
         { pubkey: OPEN_ORDERS, isSigner: false, isWritable: true },
         { pubkey: TARGET_ORDERS, isSigner: false, isWritable: true },
         { pubkey: BASE_VAULT, isSigner: false, isWritable: true },

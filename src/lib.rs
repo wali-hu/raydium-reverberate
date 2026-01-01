@@ -54,8 +54,7 @@ pub fn process_instruction(
 
     // Buy: SOL -> Token
     let buy_accounts = vec![
-        AccountMeta::new_readonly(*raydium_program.key, false),
-        AccountMeta::new(*amm_id.key, false),
+        AccountMeta::new_readonly(*amm_id.key, false),
         AccountMeta::new_readonly(*amm_authority.key, false),
         AccountMeta::new(*amm_open_orders.key, false),
         AccountMeta::new(*amm_target_orders.key, false),
@@ -72,6 +71,7 @@ pub fn process_instruction(
         AccountMeta::new(*user_source_token_account.key, false),
         AccountMeta::new(*user_destination_token_account.key, false),
         AccountMeta::new_readonly(*user_source_owner.key, true),
+        AccountMeta::new_readonly(*token_program.key, false), // Token program should be last
     ];
 
     let mut buy_data = vec![9]; // Raydium swap instruction
@@ -97,8 +97,7 @@ pub fn process_instruction(
 
     // Sell: Token -> SOL (reverse the coin/pc accounts)
     let sell_accounts = vec![
-        AccountMeta::new_readonly(*raydium_program.key, false),
-        AccountMeta::new(*amm_id.key, false),
+        AccountMeta::new_readonly(*amm_id.key, false),
         AccountMeta::new_readonly(*amm_authority.key, false),
         AccountMeta::new(*amm_open_orders.key, false),
         AccountMeta::new(*amm_target_orders.key, false),
@@ -115,6 +114,7 @@ pub fn process_instruction(
         AccountMeta::new(*user_destination_token_account.key, false),
         AccountMeta::new(*user_source_token_account.key, false),
         AccountMeta::new_readonly(*user_source_owner.key, true),
+        AccountMeta::new_readonly(*token_program.key, false), // Token program should be last
     ];
 
     let mut sell_data = vec![9]; // Raydium swap instruction

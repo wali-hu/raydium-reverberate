@@ -173,7 +173,7 @@ export class AtomicSwapClient {
       
       return {
         ammId: poolId,
-        ammAuthority: new PublicKey("5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1"), // Default authority
+        ammAuthority: new PublicKey("DRayqG9RXYi8WHgWEmRQGrUWRWbhjYWYkCRJDd6JBBak"), // Real authority from pool data
         ammOpenOrders: poolData.openOrders || new PublicKey("Cikw3ag5C5BRnj5MsnmfZNYHHpup669TjSxWT7JHdpc1"),
         ammTargetOrders: poolData.targetOrders || new PublicKey("Dy2FMRoxdnQFxGQNXSgc3tY8db15MqdVmm5LJiUvcsFf"),
         poolCoinTokenAccount: poolData.baseVault || new PublicKey("2meN5DuUivsc8GkSou5vDRXYEx41BfpT9GLLADwetuMD"),
