@@ -64,7 +64,7 @@ export class AtomicSwapSimulator {
     amountInSol: number,
     slippageBps: number = 500
   ) {
-    console.log(`\n🔄 Simulating Atomic Round-Trip Swap`);
+    console.log(`\n Simulating Atomic Round-Trip Swap`);
     console.log(`Token A: ${tokenAMint}`);
     console.log(`Token B: ${tokenBMint}`);
     console.log(`Amount: ${amountInSol} SOL`);
@@ -88,7 +88,7 @@ export class AtomicSwapSimulator {
       this.wallet.publicKey
     );
 
-    console.log(`📋 Pool Information:`);
+    console.log(` Pool Information:`);
     console.log(`AMM ID: ${poolInfo.ammId.toString()}`);
     console.log(`AMM Authority: ${poolInfo.ammAuthority.toString()}`);
     console.log(`Pool Coin Account: ${poolInfo.poolCoinTokenAccount.toString()}`);
@@ -99,7 +99,7 @@ export class AtomicSwapSimulator {
     const minAmountOutBuy = amountInLamports * BigInt(10000 - slippageBps) / BigInt(10000);
     const minAmountOutSell = amountInLamports * BigInt(10000 - slippageBps) / BigInt(10000);
 
-    console.log(`\n💰 Transaction Amounts:`);
+    console.log(`\n Transaction Amounts:`);
     console.log(`Amount In: ${amountInLamports.toString()} lamports (${amountInSol} SOL)`);
     console.log(`Min Amount Out Buy: ${minAmountOutBuy.toString()} lamports`);
     console.log(`Min Amount Out Sell: ${minAmountOutSell.toString()} lamports`);
@@ -112,7 +112,7 @@ export class AtomicSwapSimulator {
     );
 
     const serializedData = borsh.serialize(schema, instructionData);
-    console.log(`\n📦 Instruction Data: ${Buffer.from(serializedData).toString('hex')}`);
+    console.log(`\n Instruction Data: ${Buffer.from(serializedData).toString('hex')}`);
 
     // Create instruction
     const instruction = new TransactionInstruction({
@@ -141,7 +141,7 @@ export class AtomicSwapSimulator {
       data: Buffer.from(serializedData),
     });
 
-    console.log(`\n🔧 Transaction Accounts (${instruction.keys.length} total):`);
+    console.log(`\n Transaction Accounts (${instruction.keys.length} total):`);
     instruction.keys.forEach((key, index) => {
       console.log(`${index + 1}. ${key.pubkey.toString()} (${key.isSigner ? 'signer' : 'non-signer'}, ${key.isWritable ? 'writable' : 'readonly'})`);
     });
@@ -162,16 +162,16 @@ export class AtomicSwapSimulator {
       console.log(`\n⚡ Running simulation...`);
       const simulation = await this.connection.simulateTransaction(transaction);
       
-      console.log(`\n📊 Detailed Simulation Results:`);
-      console.log(`✅ Transaction Structure: Valid`);
-      console.log(`✅ Atomic Execution: Both buy and sell in single transaction`);
-      console.log(`✅ Slippage Protection: ${slippageBps / 100}% maximum slippage`);
+      console.log(`\n Detailed Simulation Results:`);
+      console.log(` Transaction Structure: Valid`);
+      console.log(` Atomic Execution: Both buy and sell in single transaction`);
+      console.log(` Slippage Protection: ${slippageBps / 100}% maximum slippage`);
       
       if (simulation.value.err) {
-        console.log(`❌ Simulation Error:`, simulation.value.err);
+        console.log(` Simulation Error:`, simulation.value.err);
         console.log(`📝 Error Details:`, JSON.stringify(simulation.value.err, null, 2));
       } else {
-        console.log(`✅ Simulation: SUCCESS`);
+        console.log(` Simulation: SUCCESS`);
         console.log(`⛽ Compute Units Used: ${simulation.value.unitsConsumed || 'N/A'}`);
       }
       
@@ -184,7 +184,7 @@ export class AtomicSwapSimulator {
         console.log(`No logs available`);
       }
       
-      console.log(`\n🔄 Volume Simulation Summary:`);
+      console.log(`\n Volume Simulation Summary:`);
       console.log(`1. Buy: ${tokenAMint.slice(0,8)}... → ${tokenBMint.slice(0,8)}...`);
       console.log(`2. Sell: ${tokenBMint.slice(0,8)}... → ${tokenAMint.slice(0,8)}...`);
       console.log(`3. Net Effect: Volume generated, minimal price impact`);
@@ -192,7 +192,7 @@ export class AtomicSwapSimulator {
       
       return simulation;
     } catch (error) {
-      console.error(`❌ Simulation failed with exception:`, error);
+      console.error(` Simulation failed with exception:`, error);
       throw error;
     }
   }
@@ -204,7 +204,7 @@ export class AtomicSwapSimulator {
     if (tokenAMint === "So11111111111111111111111111111111111111112" && 
         tokenBMint === "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v") {
       
-      console.log(`✅ Using SOL-USDC mainnet pool data`);
+      console.log(` Using SOL-USDC mainnet pool data`);
       return {
         ammId: new PublicKey("58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2"),
         ammAuthority: new PublicKey("5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1"),
@@ -224,7 +224,7 @@ export class AtomicSwapSimulator {
     }
     
     // For other pairs, return mock data with warning
-    console.log(`⚠️  Using mock pool data - real pool addresses needed for actual trading`);
+    console.log(`  Using mock pool data - real pool addresses needed for actual trading`);
     return this.getMockPoolInfo();
   }
 
@@ -263,7 +263,7 @@ export async function simulateVolumeSwap(
 
 // Test with SOL-USDC pair
 async function testSOLUSDC() {
-  console.log("🚀 Volume Simulation Testing - Mainnet");
+  console.log(" Volume Simulation Testing - Mainnet");
   console.log("Program ID: c6yDi5Z8AjensVGtu7WrsoL4T2XLVChLQo9t7MbYahg");
   
   await simulateVolumeSwap(

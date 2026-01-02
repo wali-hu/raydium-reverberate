@@ -160,12 +160,12 @@ export class AtomicSwapClient {
         throw new Error("Pool not found on devnet");
       }
       
-      console.log("✅ Pool found on devnet");
+      console.log(" Pool found on devnet");
       
       // Decode the pool data using Raydium SDK
       const poolData = LIQUIDITY_STATE_LAYOUT_V4.decode(poolAccountInfo.data);
       
-      console.log("📊 Decoded pool data:");
+      console.log(" Decoded pool data:");
       console.log("Base Mint:", poolData.baseMint.toString());
       console.log("Quote Mint:", poolData.quoteMint.toString());
       console.log("Base Vault:", poolData.baseVault?.toString());
@@ -209,7 +209,7 @@ export async function executeAtomicSwap(
 // Execute real devnet transaction
 async function executeDevnetSwap() {
   try {
-    console.log("🚀 Executing Atomic Round-Trip Swap on Devnet");
+    console.log(" Executing Atomic Round-Trip Swap on Devnet");
     
     // Updated devnet pool - WORKING POOL FOUND!
     const POOL_ADDRESS = "3rnUv5HsgJfhmRWFa9PLsdMv5VqNZka4XFfGzQBWm3u9";
@@ -224,15 +224,15 @@ async function executeDevnetSwap() {
     console.log("Wallet Address:", client.wallet.publicKey.toString());
     
     if (balance < 0.01 * LAMPORTS_PER_SOL) {
-      console.log("❌ Insufficient SOL balance for swap");
+      console.log(" Insufficient SOL balance for swap");
       return;
     }
     
-    console.log("\n📊 Pool Info:");
+    console.log("\n Pool Info:");
     console.log("Pool Address:", POOL_ADDRESS);
     console.log("Token Address:", TOKEN_ADDRESS);
     
-    console.log("\n🔄 Executing atomic round-trip swap...");
+    console.log("\n Executing atomic round-trip swap...");
     console.log("Amount: 0.005 SOL");
     console.log("Slippage: 5%");
     
@@ -244,17 +244,17 @@ async function executeDevnetSwap() {
       500    // 5% slippage
     );
     
-    console.log("\n✅ Transaction successful!");
+    console.log("\n Transaction successful!");
     console.log("Signature:", signature);
     console.log("View on Solscan:", `https://solscan.io/tx/${signature}?cluster=devnet`);
     
   } catch (error) {
-    console.error("❌ Transaction failed:", error);
+    console.error(" Transaction failed:", error);
     
     if (error.message?.includes("insufficient funds")) {
-      console.log("💡 Make sure you have enough SOL in your devnet wallet");
+      console.log(" Make sure you have enough SOL in your devnet wallet");
     } else if (error.message?.includes("pool")) {
-      console.log("💡 Pool might not have sufficient liquidity or be inactive");
+      console.log(" Pool might not have sufficient liquidity or be inactive");
     }
   }
 }

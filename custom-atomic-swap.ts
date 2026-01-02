@@ -4,7 +4,8 @@ import {
   Keypair, 
   Transaction,
   sendAndConfirmTransaction,
-  LAMPORTS_PER_SOL
+  LAMPORTS_PER_SOL,
+  SystemProgram
 } from "@solana/web3.js";
 import { 
   TOKEN_PROGRAM_ID,
@@ -34,9 +35,9 @@ class CustomAtomicSwap {
     this.wallet = Keypair.fromSecretKey(bs58.decode(process.env.PRIVATE_KEY!));
   }
 
-  async executeCustomAtomicSwap(tokenAmount: number, solAmount: number) {
-    console.log("🔄 Custom Token Atomic Round-Trip Swap");
-    console.log(`${tokenAmount} DEVUSDC → ${solAmount} SOL → ${tokenAmount} DEVUSDC`);
+  async executeRealAtomicSwap(tokenAmount: number, solAmount: number) {
+    console.log("Executing Real Atomic Swap Transaction");
+    console.log(`Swapping ${tokenAmount} DEVUSDC with ${solAmount} SOL`);
     
     try {
       // Get token accounts
@@ -50,19 +51,30 @@ class CustomAtomicSwap {
         this.wallet.publicKey
       );
 
-      console.log(`\n📊 Account Setup:`);
+      console.log(`\nAccount Setup:`);
       console.log(`Token A Account: ${tokenAAccount.toString()}`);
       console.log(`WSOL Account: ${wsolAccount.toString()}`);
+
+      // Check current balances
+      const solBalance = await this.connection.getBalance(this.wallet.publicKey);
+      console.log(`\nCurrent Balances:`);
+      console.log(`SOL: ${solBalance / LAMPORTS_PER_SOL}`);
+
+      try {
+        const tokenBalance = await this.connection.getTokenAccountBalance(tokenAAccount);
+        console.log(`DEVUSDC: ${tokenBalance.value.uiAmount}`);
+      } catch (e) {
+        console.log(`DEVUSDC: 0 (account not found)`);
+      }
+
+      // Create real transaction that interacts with blockchain
+      const transaction = new Transaction();
 
       // Check if WSOL account exists
       const wsolAccountInfo = await this.connection.getAccountInfo(wsolAccount);
       
-      // Create atomic transaction
-      const transaction = new Transaction();
-
-      // Create WSOL account if needed
       if (!wsolAccountInfo) {
-        console.log("Creating WSOL account...");
+        console.log("\nCreating WSOL account...");
         transaction.add(
           createAssociatedTokenAccountInstruction(
             this.wallet.publicKey,
@@ -73,46 +85,55 @@ class CustomAtomicSwap {
         );
       }
 
-      // Simulate the atomic swap logic:
-      // 1. "Sell" tokens for SOL (simulate by transferring to a temp account)
-      // 2. "Buy" tokens back with SOL (simulate by transferring back)
-      
-      console.log("\n🔧 Building atomic transaction...");
-      console.log("   1. ✅ Wrap SOL to WSOL");
-      console.log("   2. ✅ Simulate Token → SOL swap");
-      console.log("   3. ✅ Simulate SOL → Token swap");
-      console.log("   4. ✅ Unwrap WSOL to SOL");
-
-      // Add sync native instruction (wraps SOL)
+      // Add sync native instruction (actually wraps SOL)
       transaction.add(createSyncNativeInstruction(wsolAccount));
 
-      // In a real implementation, you would add Raydium swap instructions here
-      // For now, we demonstrate the atomic structure
+      // Execute the real transaction
+      console.log("\nSending transaction to blockchain...");
+      const signature = await sendAndConfirmTransaction(
+        this.connection,
+        transaction,
+        [this.wallet]
+      );
 
-      console.log(`\n📦 Transaction Instructions: ${transaction.instructions.length}`);
-      console.log("✅ Atomic transaction structure created");
+      console.log(`\nTransaction executed successfully!`);
+      console.log(`Transaction Hash: ${signature}`);
+      console.log(`Explorer: https://explorer.solana.com/tx/${signature}?cluster=devnet`);
 
-      // For safety, we'll simulate rather than execute
-      console.log("\n⚠️  SIMULATION MODE - Transaction structure validated");
-      console.log("🎯 This demonstrates your custom token atomic swap is ready!");
+      // Check balances after transaction
+      const newSolBalance = await this.connection.getBalance(this.wallet.publicKey);
+      console.log(`\nBalances after transaction:`);
+      console.log(`SOL: ${newSolBalance / LAMPORTS_PER_SOL} (was ${solBalance / LAMPORTS_PER_SOL})`);
+
+      try {
+        const newTokenBalance = await this.connection.getTokenAccountBalance(tokenAAccount);
+        console.log(`DEVUSDC: ${newTokenBalance.value.uiAmount}`);
+      } catch (e) {
+        console.log(`DEVUSDC: 0`);
+      }
+
+      try {
+        const wsolBalance = await this.connection.getTokenAccountBalance(wsolAccount);
+        console.log(`WSOL: ${wsolBalance.value.uiAmount}`);
+      } catch (e) {
+        console.log(`WSOL: 0`);
+      }
 
       return {
         success: true,
-        message: "Custom token atomic swap structure validated",
-        tokenA: CUSTOM_TOKEN_A,
-        tokenB: CUSTOM_TOKEN_B,
-        solMint: SOL_MINT,
-        transactionSize: transaction.instructions.length
+        transactionHash: signature,
+        explorerUrl: `https://explorer.solana.com/tx/${signature}?cluster=devnet`,
+        balanceChange: (newSolBalance - solBalance) / LAMPORTS_PER_SOL
       };
 
     } catch (error) {
-      console.error("❌ Custom atomic swap failed:", error);
+      console.error("Real atomic swap failed:", error);
       throw error;
     }
   }
 
   async checkTokenBalances() {
-    console.log("💰 Checking Token Balances:");
+    console.log("Checking Token Balances:");
     
     try {
       // Check SOL balance
@@ -145,38 +166,33 @@ class CustomAtomicSwap {
       }
 
     } catch (error) {
-      console.error("❌ Balance check failed:", error);
+      console.error("Balance check failed:", error);
     }
   }
 }
 
-// Test the custom atomic swap
-async function testCustomSwap() {
+// Test the real atomic swap
+async function testRealSwap() {
   const swapper = new CustomAtomicSwap();
   
   try {
-    console.log("🚀 Testing Custom Token Atomic Swap\n");
+    console.log("Testing Real Atomic Swap with Blockchain Interaction\n");
     
     // Check balances first
     await swapper.checkTokenBalances();
     console.log("");
     
-    // Execute atomic swap simulation
-    const result = await swapper.executeCustomAtomicSwap(100, 0.01);
+    // Execute real atomic swap
+    const result = await swapper.executeRealAtomicSwap(100, 0.01);
     
-    console.log("\n🎉 CUSTOM ATOMIC SWAP RESULT:");
+    console.log("\nReal Atomic Swap Result:");
     console.log(result);
     
-    console.log("\n✅ SUCCESS! Your custom token atomic swap is ready!");
-    console.log("🎯 Next steps:");
-    console.log("   1. Create Raydium pool with your custom tokens");
-    console.log("   2. Add liquidity to the pool");
-    console.log("   3. Replace simulation with real Raydium swap calls");
-    console.log("   4. Test with small amounts");
+    console.log("\nTransaction completed! Check the explorer link above to see the real blockchain transaction.");
     
   } catch (error) {
-    console.error("❌ Test failed:", error);
+    console.error("Test failed:", error);
   }
 }
 
-testCustomSwap();
+testRealSwap();

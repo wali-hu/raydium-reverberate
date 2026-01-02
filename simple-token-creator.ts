@@ -31,7 +31,7 @@ class SimpleTokenCreator {
   }
 
   async createToken(name: string, supply: number) {
-    console.log(`🪙 Creating ${name} token...`);
+    console.log(`Creating ${name} token...`);
     
     try {
       // Generate new mint keypair
@@ -86,11 +86,12 @@ class SimpleTokenCreator {
         [this.payer, mint]
       );
 
-      console.log(`✅ ${name} created successfully!`);
+      console.log(`${name} created successfully!`);
       console.log(`   Mint: ${mint.publicKey.toString()}`);
       console.log(`   Token Account: ${tokenAccount.toString()}`);
       console.log(`   Supply: ${supply.toLocaleString()}`);
-      console.log(`   Signature: ${signature}`);
+      console.log(`   Transaction: ${signature}`);
+      console.log(`   Explorer: https://explorer.solana.com/tx/${signature}?cluster=devnet`);
 
       return {
         name,
@@ -101,13 +102,13 @@ class SimpleTokenCreator {
       };
 
     } catch (error) {
-      console.error(`❌ Failed to create ${name}:`, error);
+      console.error(`Failed to create ${name}:`, error);
       throw error;
     }
   }
 
   async createDevnetTokens() {
-    console.log("🚀 Creating Custom Devnet Tokens\n");
+    console.log("Creating Custom Devnet Tokens\n");
 
     // Check balance
     const balance = await this.connection.getBalance(this.payer.publicKey);
@@ -125,14 +126,14 @@ class SimpleTokenCreator {
     const tokenB = await this.createToken("DEVTEST", 500000);
     console.log("");
 
-    console.log("🎉 ALL TOKENS CREATED SUCCESSFULLY!\n");
+    console.log("ALL TOKENS CREATED SUCCESSFULLY!\n");
     
-    console.log("📋 SUMMARY:");
+    console.log("SUMMARY:");
     console.log(`${tokenA.name}: ${tokenA.mint}`);
     console.log(`${tokenB.name}: ${tokenB.mint}`);
     console.log(`SOL: So11111111111111111111111111111111111111112`);
 
-    console.log("\n🎯 READY FOR POOL CREATION!");
+    console.log("\nREADY FOR POOL CREATION!");
     console.log("Use these token mints to create your Raydium pool:");
     console.log(`- Base Token: ${tokenA.mint}`);
     console.log(`- Quote Token: So11111111111111111111111111111111111111112 (SOL)`);
@@ -152,13 +153,13 @@ async function main() {
   try {
     const tokens = await creator.createDevnetTokens();
     
-    console.log("\n💾 SAVE THESE FOR YOUR ATOMIC SWAP:");
+    console.log("\nSAVE THESE FOR YOUR ATOMIC SWAP:");
     console.log(`export const CUSTOM_TOKEN_A = "${tokens.tokenA.mint}";`);
     console.log(`export const CUSTOM_TOKEN_B = "${tokens.tokenB.mint}";`);
     console.log(`export const SOL_MINT = "${tokens.sol}";`);
     
   } catch (error) {
-    console.error("❌ Token creation failed:", error);
+    console.error("Token creation failed:", error);
   }
 }
 
