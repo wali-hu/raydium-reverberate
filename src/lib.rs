@@ -85,7 +85,7 @@ pub fn process_instruction(
         AccountMeta::new_readonly(*token_program.key, false),
     ];
 
-    let mut buy_data = vec![9]; // Raydium swap instruction
+    let mut buy_data = vec![9]; // Raydium swap instruction discriminator
     buy_data.extend_from_slice(&instruction.amount_in.to_le_bytes());
     buy_data.extend_from_slice(&instruction.minimum_amount_out_buy.to_le_bytes());
 
@@ -128,7 +128,7 @@ pub fn process_instruction(
         AccountMeta::new_readonly(*token_program.key, false),
     ];
 
-    let mut sell_data = vec![9]; // Raydium swap instruction
+    let mut sell_data = vec![9]; // Raydium swap instruction discriminator
     sell_data.extend_from_slice(&token_balance.to_le_bytes());
     sell_data.extend_from_slice(&instruction.minimum_amount_out_sell.to_le_bytes());
 
