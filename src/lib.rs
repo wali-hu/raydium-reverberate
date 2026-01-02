@@ -13,6 +13,9 @@ use borsh::{BorshDeserialize, BorshSerialize};
 
 entrypoint!(process_instruction);
 
+// Devnet Raydium AMM Program ID
+const DEVNET_RAYDIUM_AMM: &str = "HWy1jotHpo6UqeQxx49dpYYdQB8wj9Qk9MdxwjLvDHB8";
+
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct AtomicSwapInstruction {
     pub amount_in: u64,
@@ -21,7 +24,7 @@ pub struct AtomicSwapInstruction {
 }
 
 pub fn process_instruction(
-    program_id: &Pubkey,
+    _program_id: &Pubkey,
     accounts: &[AccountInfo],
     instruction_data: &[u8],
 ) -> ProgramResult {
@@ -31,6 +34,14 @@ pub fn process_instruction(
     
     // Raydium and Serum accounts
     let raydium_program = next_account_info(account_info_iter)?;
+    
+    // Validate Raydium program ID for devnet
+    let expected_raydium = DEVNET_RAYDIUM_AMM.parse::<Pubkey>().unwrap();
+    if *raydium_program.key != expected_raydium {
+        msg!("Invalid Raydium program ID. Expected: {}, Got: {}", DEVNET_RAYDIUM_AMM, raydium_program.key);
+        return Err(ProgramError::InvalidAccountData);
+    }
+    
     let amm_id = next_account_info(account_info_iter)?;
     let amm_authority = next_account_info(account_info_iter)?;
     let amm_open_orders = next_account_info(account_info_iter)?;
@@ -50,7 +61,7 @@ pub fn process_instruction(
     let user_source_owner = next_account_info(account_info_iter)?;
     let token_program = next_account_info(account_info_iter)?;
 
-    msg!("Starting atomic round-trip swap");
+    msg!("Starting atomic round-trip swap with devnet Raydium");
 
     // Buy: SOL -> Token
     let buy_accounts = vec![
@@ -71,7 +82,7 @@ pub fn process_instruction(
         AccountMeta::new(*user_source_token_account.key, false),
         AccountMeta::new(*user_destination_token_account.key, false),
         AccountMeta::new_readonly(*user_source_owner.key, true),
-        AccountMeta::new_readonly(*token_program.key, false), // Token program should be last
+        AccountMeta::new_readonly(*token_program.key, false),
     ];
 
     let mut buy_data = vec![9]; // Raydium swap instruction
@@ -114,7 +125,7 @@ pub fn process_instruction(
         AccountMeta::new(*user_destination_token_account.key, false),
         AccountMeta::new(*user_source_token_account.key, false),
         AccountMeta::new_readonly(*user_source_owner.key, true),
-        AccountMeta::new_readonly(*token_program.key, false), // Token program should be last
+        AccountMeta::new_readonly(*token_program.key, false),
     ];
 
     let mut sell_data = vec![9]; // Raydium swap instruction

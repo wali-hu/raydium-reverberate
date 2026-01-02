@@ -21,8 +21,8 @@ import bs58 from "bs58";
 
 dotenv.config();
 
-// Raydium AMM Program ID (devnet)
-const RAYDIUM_AMM_PROGRAM = new PublicKey("DRaya7Kj3aMWQSy19kSjvmuwq9docCHofyP9kanQGaav");
+// Raydium AMM Program ID (devnet) - Updated to working devnet program
+const RAYDIUM_AMM_PROGRAM = new PublicKey("HWy1jotHpo6UqeQxx49dpYYdQB8wj9Qk9MdxwjLvDHB8");
 
 class AtomicSwapInstruction {
   amount_in: bigint;
@@ -211,9 +211,9 @@ async function executeDevnetSwap() {
   try {
     console.log("🚀 Executing Atomic Round-Trip Swap on Devnet");
     
-    // Devnet pool and token addresses
-    const POOL_ADDRESS = "83KtdsfcyB336kH8b3JRoWMLngc9q9MfAUcd8SdQegJn";
-    const TOKEN_ADDRESS = "USDCoctVLVnvTXBEuP9s8hntucdJokbo17RwHuNXemT";
+    // Updated devnet pool - WORKING POOL FOUND!
+    const POOL_ADDRESS = "3rnUv5HsgJfhmRWFa9PLsdMv5VqNZka4XFfGzQBWm3u9";
+    const TOKEN_ADDRESS = "Aep2H6QEmjxfEoPLqihz6UVpSth6T4hn7oMd4qu4TRrg"; // Correct base mint
     const PROGRAM_ID = "c6yDi5Z8AjensVGtu7WrsoL4T2XLVChLQo9t7MbYahg";
     
     const client = new AtomicSwapClient(PROGRAM_ID);
