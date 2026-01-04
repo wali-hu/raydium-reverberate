@@ -169,17 +169,17 @@ class FinalVolumeBot {
         { commitment: "confirmed" }
       );
       
-      console.log(`✅ Atomic swap completed: https://explorer.solana.com/tx/${signature}?cluster=devnet`);
+      console.log(`Atomic swap completed: https://explorer.solana.com/tx/${signature}?cluster=devnet`);
       return { success: true, signature };
       
     } catch (error) {
-      console.error("❌ Atomic swap failed:", error.message);
+      console.error("Atomic swap failed:", error.message);
       return { success: false, error: error.message };
     }
   }
 
   async run() {
-    console.log("🚀 Starting Final Volume Bot with Own Pool");
+    console.log("Starting Final Volume Bot with Own Pool");
     console.log(`Wallet: ${this.wallet.publicKey.toString()}`);
     
     const balance = await this.connection.getBalance(this.wallet.publicKey);
@@ -191,7 +191,7 @@ class FinalVolumeBot {
     // Execute atomic swaps
     const results = [];
     for (let i = 0; i < 3; i++) {
-      console.log(`\n📊 Atomic swap ${i + 1}/3`);
+      console.log(`\nAtomic swap ${i + 1}/3`);
       const result = await this.executeAtomicSwap(poolId, 0.01);
       results.push(result);
       
@@ -201,7 +201,7 @@ class FinalVolumeBot {
     }
     
     const successful = results.filter(r => r.success).length;
-    console.log(`\n📈 Results: ${successful}/3 successful (${(successful/3*100).toFixed(1)}%)`);
+    console.log(`\nResults: ${successful}/3 successful (${(successful/3*100).toFixed(1)}%)`);
   }
 }
 

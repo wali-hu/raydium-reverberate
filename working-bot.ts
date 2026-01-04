@@ -77,18 +77,18 @@ class WorkingVolumeBot {
         { commitment: "confirmed" }
       );
       
-      console.log(`✅ Volume transaction completed: https://explorer.solana.com/tx/${signature}?cluster=devnet`);
+      console.log(`Volume transaction completed: https://explorer.solana.com/tx/${signature}?cluster=devnet`);
       
       return { success: true, signature };
       
     } catch (error) {
-      console.error("❌ Volume swap failed:", error.message);
+      console.error("Volume swap failed:", error.message);
       return { success: false, error: error.message };
     }
   }
 
   async runVolumeBot(numberOfSwaps: number, swapAmount: number) {
-    console.log("🚀 Starting Working Volume Bot");
+    console.log("Starting Working Volume Bot");
     console.log(`Swaps: ${numberOfSwaps}, Amount: ${swapAmount} SOL each`);
     console.log(`Wallet: ${this.wallet.publicKey.toString()}`);
     
@@ -98,7 +98,7 @@ class WorkingVolumeBot {
     const results = [];
     
     for (let i = 0; i < numberOfSwaps; i++) {
-      console.log(`\n📊 Volume swap ${i + 1}/${numberOfSwaps}`);
+      console.log(`\nVolume swap ${i + 1}/${numberOfSwaps}`);
       
       const result = await this.executeVolumeSwap(swapAmount);
       results.push(result);
@@ -110,7 +110,7 @@ class WorkingVolumeBot {
     }
     
     const successful = results.filter(r => r.success).length;
-    console.log(`\n📈 Volume Bot Results:`);
+    console.log(`\nVolume Bot Results:`);
     console.log(`Total: ${numberOfSwaps}, Success: ${successful}, Failed: ${numberOfSwaps - successful}`);
     console.log(`Success Rate: ${(successful / numberOfSwaps * 100).toFixed(1)}%`);
     

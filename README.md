@@ -94,12 +94,12 @@ The bots automatically:
 
 Sample output:
 ```
-🚀 Starting Final Volume Bot with Own Pool
+Starting Final Volume Bot with Own Pool
 Wallet: FQ7zu26PVPCbiDuXtbFtHzMeVVtJSfQR4xwQDjsz8H7t
 SOL Balance: 11.26092852
 Pool created: 5fZHcQk76Pf3nzCc9fcgHsHDdWRpTa744XAJgQP1qfH9
-✅ Atomic swap completed: https://explorer.solana.com/tx/...
-📈 Results: 3/3 successful (100.0%)
+Atomic swap completed: https://explorer.solana.com/tx/...
+Results: 3/3 successful (100.0%)
 ```
 
 ## Development

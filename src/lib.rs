@@ -42,9 +42,9 @@ pub fn process_instruction(
     let _pool_id = next_account_info(account_info_iter)?;
     let _authority = next_account_info(account_info_iter)?;
     
-    msg!("✅ Buy phase: SOL -> Token (simulated)");
-    msg!("✅ Sell phase: Token -> SOL (simulated)");
-    msg!("✅ Atomic round-trip swap completed successfully!");
+    msg!("Buy phase: SOL -> Token (simulated)");
+    msg!("Sell phase: Token -> SOL (simulated)");
+    msg!("Atomic round-trip swap completed successfully!");
     
     // In a real implementation, you would:
     // 1. Validate all account ownership and data
