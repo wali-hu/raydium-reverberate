@@ -31,11 +31,12 @@ import {
 } from "@solana/spl-token";
 import * as dotenv from "dotenv";
 import bs58 from "bs58";
+import { CONFIG } from "../config/constants";
 
-dotenv.config();
+dotenv.config({ path: "../config/.env" });
 
 // Token configuration 
-const DEVUSDC = new PublicKey("7yPDSToUbixNUmvRuEFFW4Q9omaqSUR192Xo4zuqGDSR");
+const DEVUSDC = CONFIG.DEVUSDC;
 
 /**
  * Volume trading bot class for existing liquidity pools
@@ -47,7 +48,7 @@ class WorkingVolumeBot {
 
   constructor() {
     // Initialize connection to Solana devnet
-    this.connection = new Connection("https://api.devnet.solana.com", "confirmed");
+    this.connection = new Connection(CONFIG.RPC_URL, CONFIG.COMMITMENT);
     this.wallet = Keypair.fromSecretKey(bs58.decode(process.env.PRIVATE_KEY!));
   }
 
@@ -159,7 +160,7 @@ async function main() {
   try {
     const bot = new WorkingVolumeBot();
     // Execute 3 swaps of 0.01 SOL each for volume generation
-    await bot.runVolumeBot(3, 0.01);
+    await bot.runVolumeBot(CONFIG.DEFAULT_SWAP_COUNT, CONFIG.DEFAULT_SWAP_AMOUNT);
   } catch (error: any) {
     console.error("Error:", error);
   }

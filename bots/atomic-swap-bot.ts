@@ -32,12 +32,13 @@ import {
 import * as dotenv from "dotenv";
 import bs58 from "bs58";
 import * as borsh from "borsh";
+import { CONFIG } from "../config/constants";
 
-dotenv.config();
+dotenv.config({ path: "../config/.env" });
 
 // Program configuration
-const ATOMIC_SWAP_PROGRAM_ID = new PublicKey("c6yDi5Z8AjensVGtu7WrsoL4T2XLVChLQo9t7MbYahg");
-const DEVUSDC = new PublicKey("7yPDSToUbixNUmvRuEFFW4Q9omaqSUR192Xo4zuqGDSR");
+const ATOMIC_SWAP_PROGRAM_ID = CONFIG.ATOMIC_SWAP_PROGRAM_ID;
+const DEVUSDC = CONFIG.DEVUSDC;
 
 /**
  * Instruction data structure for atomic swap operations
@@ -75,7 +76,7 @@ class FinalVolumeBot {
 
   constructor() {
     // Connect to Solana devnet with confirmed commitment
-    this.connection = new Connection("https://api.devnet.solana.com", "confirmed");
+    this.connection = new Connection(CONFIG.RPC_URL, CONFIG.COMMITMENT);
     this.wallet = Keypair.fromSecretKey(bs58.decode(process.env.PRIVATE_KEY!));
   }
 

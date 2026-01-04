@@ -7,6 +7,10 @@
   "scripts": {
     "build": "cargo build-sbf --manifest-path=Cargo.toml --sbf-out-dir=target/deploy",
     "deploy": "solana program deploy target/deploy/atomic_swap.so",
+    "build-program": "./scripts/build.sh",
+    "run:atomic": "./scripts/run-bot.sh atomic",
+    "run:volume": "./scripts/run-bot.sh volume",
+    "compile": "tsc",
     "test": "ts-node client.ts",
     "simulate": "ts-node simulate.ts",
     "volume": "ts-node -e \"import('./simulate.js').then(m => m.simulateVolumeSwap(process.argv[1], process.argv[2], process.argv[3], parseFloat(process.argv[4]), parseInt(process.argv[5] || '500')))\""
