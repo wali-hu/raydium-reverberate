@@ -1,5 +1,8 @@
 # Solana Atomic Round-Trip Swap Bot
 
+**Author: Abdullah**  
+**Solana Trading Bot Development**
+
 A high-performance Solana trading bot that performs atomic round-trip swaps using native Solana programs and Raydium pools. The bot creates its own AMM pools and executes volume trading with 100% success rate.
 
 ## Features
