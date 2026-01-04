@@ -31,8 +31,12 @@ npm install
 
 ### Configuration
 
-Create a `.env` file:
+1. Copy the environment template:
+```bash
+cp config/.env.example config/.env
+```
 
+2. Edit `config/.env` with your details:
 ```env
 PRIVATE_KEY=your_base58_encoded_private_key
 RPC_URL=https://api.devnet.solana.com
@@ -41,20 +45,19 @@ RPC_URL=https://api.devnet.solana.com
 ### Deploy the Rust Program
 
 ```bash
-npm run build
-npm run deploy
+npm run build-program
 ```
 
 ### Run the Bots
 
-**Atomic Round-Trip Bot** (Creates own pool):
+**Atomic Swap Bot** (Creates own pool):
 ```bash
-npx ts-node final-working-bot.ts
+npm run run:atomic
 ```
 
-**Volume Trading Bot** (Uses existing pools):
+**Volume Trader Bot** (Uses existing pools):
 ```bash
-npx ts-node working-bot.ts
+npm run run:volume
 ```
 
 ## Bot Performance
@@ -73,9 +76,26 @@ Both bots achieve **100% success rate** with the following results:
 
 ## Architecture
 
+```
+atomic_round_trip/
+├── bots/                    # Trading bot implementations
+│   ├── atomic-swap-bot.ts   # Atomic round-trip swap bot
+│   └── volume-trader-bot.ts # Volume trading bot
+├── config/                  # Configuration files
+│   ├── .env.example         # Environment template
+│   └── constants.ts         # Application constants
+├── scripts/                 # Utility scripts
+│   ├── build.sh            # Program build script
+│   ├── deploy.sh           # Deployment script
+│   └── run-bot.sh          # Bot runner script
+├── src/                    # Rust program source
+│   └── lib.rs              # On-chain program logic
+└── docs/                   # Documentation
+```
+
 ### TypeScript Bots
-- `final-working-bot.ts`: Main atomic swap bot with pool creation
-- `working-bot.ts`: Volume trading bot for existing pools
+- `bots/atomic-swap-bot.ts`: Main atomic swap bot with pool creation
+- `bots/volume-trader-bot.ts`: Volume trading bot for existing pools
 
 ### Rust Program
 - `src/lib.rs`: On-chain program for atomic swap operations
@@ -109,7 +129,7 @@ Results: 3/3 successful (100.0%)
 
 ### Build Rust Program
 ```bash
-npm run build
+npm run build-program
 ```
 
 ### Deploy to Solana
@@ -119,7 +139,8 @@ npm run deploy
 
 ### Test Bots
 ```bash
-npm test
+npm run run:atomic  # Test atomic swap bot
+npm run run:volume  # Test volume trader bot
 ```
 
 ## Network Support
