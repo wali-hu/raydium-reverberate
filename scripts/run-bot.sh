@@ -1,13 +1,17 @@
 #!/bin/bash
 
+# Compile TypeScript first
+echo "Compiling TypeScript..."
+npx tsc
+
 case "$1" in
   "atomic")
     echo "Starting Atomic Swap Bot..."
-    npx ts-node bots/atomic-swap-bot.ts
+    node dist/bots/atomic-swap-bot.js
     ;;
   "volume")
     echo "Starting Volume Trader Bot..."
-    npx ts-node bots/volume-trader-bot.ts
+    node dist/bots/volume-trader-bot.js
     ;;
   *)
     echo "Usage: $0 {atomic|volume}"

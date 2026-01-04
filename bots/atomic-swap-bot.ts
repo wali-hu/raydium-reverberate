@@ -34,7 +34,7 @@ import bs58 from "bs58";
 import * as borsh from "borsh";
 import { CONFIG } from "../config/constants";
 
-dotenv.config({ path: "../config/.env" });
+dotenv.config({ path: "./config/.env" });
 
 // Program configuration
 const ATOMIC_SWAP_PROGRAM_ID = CONFIG.ATOMIC_SWAP_PROGRAM_ID;
