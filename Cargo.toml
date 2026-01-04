@@ -8,7 +8,7 @@ crate-type = ["cdylib", "lib"]
 name = "atomic_swap"
 
 [dependencies]
-solana-program = "1.17.0"
+solana-program = "1.18.0"
 spl-token = "4.0.0"
 borsh = "0.10.3"
 thiserror = "1.0.50"
