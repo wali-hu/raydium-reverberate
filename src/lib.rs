@@ -1,5 +1,7 @@
+#![allow(unexpected_cfgs)]
+
 /**
- * Solana Atomic Swap Program!
+ * Solana Atomic Swap Program
  * 
  * Author: Abdullah
  * Description: On-chain program for executing atomic round-trip swaps
@@ -8,7 +10,7 @@
  * Features:
  * - Atomic swap operations (all-or-nothing execution)
  * - Slippage protection with minimum output amounts
- * - error handling and logging
+ * - Error handling and logging
  * - Optimized for high-frequency trading
  */
 
