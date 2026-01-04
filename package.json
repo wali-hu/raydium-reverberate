@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Native Solana atomic round-trip swaps on Raydium",
   "main": "client.ts",
-  "type": "module",
   "scripts": {
     "build": "cargo build-sbf --manifest-path=Cargo.toml --sbf-out-dir=target/deploy",
     "deploy": "solana program deploy target/deploy/atomic_swap.so",

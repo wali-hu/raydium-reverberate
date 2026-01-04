@@ -33,7 +33,7 @@ import * as dotenv from "dotenv";
 import bs58 from "bs58";
 import { CONFIG } from "../config/constants";
 
-dotenv.config({ path: "../config/.env" });
+dotenv.config({ path: "./config/.env" });
 
 // Token configuration 
 const DEVUSDC = CONFIG.DEVUSDC;
