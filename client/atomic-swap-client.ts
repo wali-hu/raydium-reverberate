@@ -60,7 +60,7 @@ class AtomicSwapClient {
 
   async getPoolKeys(poolId: string): Promise<PoolKeys> {
     // Use hardcoded pool keys for SOL-USDC mainnet
-    console.log("📊 Using hardcoded mainnet pool keys");
+    console.log("Using hardcoded mainnet pool keys");
     return {
       id: "58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2",
       authority: "5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1",
@@ -83,7 +83,7 @@ class AtomicSwapClient {
     amountIn: number,
     slippage: number = 0.01
   ): Promise<string> {
-    console.log("🚀 Starting atomic round-trip swap...");
+    console.log("Starting atomic round-trip swap...");
     
     // Initialize Raydium if not done
     if (!this.raydium) {
@@ -92,7 +92,7 @@ class AtomicSwapClient {
 
     // Get pool information - use hardcoded values for devnet testing
     const poolKeys = await this.getPoolKeys(poolId);
-    console.log("📊 Pool keys retrieved");
+    console.log("Pool keys retrieved");
 
     // Use mock pool data for devnet testing to avoid RPC API key issues
     const baseReserve = new BN("1000000000000"); // 1000 SOL
@@ -170,8 +170,8 @@ class AtomicSwapClient {
       .preInstructions(preInstructions)
       .rpc();
 
-    console.log("✅ Atomic swap completed!");
-    console.log(`📝 Transaction: https://explorer.solana.com/tx/${tx}?cluster=devnet`);
+    console.log("Atomic swap completed!");
+    console.log(`Transaction: https://explorer.solana.com/tx/${tx}?cluster=devnet`);
     
     return tx;
   }
@@ -201,22 +201,22 @@ async function main() {
   const AMOUNT_SOL = 0.01; // 0.01 SOL
 
   if (!PRIVATE_KEY) {
-    console.error("❌ Please set PRIVATE_KEY environment variable");
+    console.error("Please set PRIVATE_KEY environment variable");
     process.exit(1);
   }
 
   try {
     const client = new AtomicSwapClient(RPC_URL, PRIVATE_KEY);
     
-    console.log(`💰 Wallet: ${client.wallet.publicKey.toString()}`);
-    console.log(`🏊 Pool: ${POOL_ID}`);
-    console.log(`💸 Amount: ${AMOUNT_SOL} SOL`);
+    console.log(`Wallet: ${client.wallet.publicKey.toString()}`);
+    console.log(`Pool: ${POOL_ID}`);
+    console.log(`Amount: ${AMOUNT_SOL} SOL`);
     
     const signature = await client.executeAtomicSwap(POOL_ID, AMOUNT_SOL);
-    console.log(`🎉 Success! Transaction: ${signature}`);
+    console.log(`Success! Transaction: ${signature}`);
     
   } catch (error) {
-    console.error("❌ Error:", error);
+    console.error("Error:", error);
     process.exit(1);
   }
 }
