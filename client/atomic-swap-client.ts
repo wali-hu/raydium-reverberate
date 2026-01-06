@@ -1,11 +1,18 @@
+// client/atomic-swap-client.ts (REPLACEMENT)
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
+import fetch from "node-fetch";
 import { Connection, PublicKey, Keypair, SystemProgram, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction } from "@solana/spl-token";
 import { Raydium } from "@raydium-io/raydium-sdk-v2";
 import BN from "bn.js";
 import fs from "fs";
 import bs58 from "bs58";
+import dotenv from 'dotenv';
+dotenv.config({ path: './config/.env' });
+
+console.log("PK loaded:", process.env.PRIVATE_KEY?.slice(0, 5));
+
 
 // Load the IDL
 const idl = JSON.parse(fs.readFileSync("target/idl/atomic_swap.json", "utf8"));
@@ -32,23 +39,25 @@ class AtomicSwapClient {
   public wallet: Keypair;
   private program: Program;
   private raydium: any;
+  private rpcUrl: string;
 
   constructor(rpcUrl: string, privateKey: string) {
+    this.rpcUrl = rpcUrl;
     this.connection = new Connection(rpcUrl, "confirmed");
-    // Handle both base58 string and JSON array formats
     try {
       this.wallet = Keypair.fromSecretKey(bs58.decode(privateKey));
     } catch {
       this.wallet = Keypair.fromSecretKey(new Uint8Array(JSON.parse(privateKey)));
     }
-    
+
     const provider = new anchor.AnchorProvider(
       this.connection,
       new anchor.Wallet(this.wallet),
       { commitment: "confirmed" }
     );
-    
-    this.program = new Program(idl, provider);
+
+    // program id resolved from IDL (Anchor will pick from workspace deploy); keep as-is
+    this.program = new Program(idl as any, provider);
   }
 
   async initializeRaydium() {
@@ -59,68 +68,77 @@ class AtomicSwapClient {
     });
   }
 
-  async getPoolKeys(poolId: string): Promise<PoolKeys> {
-    // Use hardcoded pool keys for SOL-USDC mainnet
-    console.log("Using hardcoded mainnet pool keys");
+  // Fetch pools from Raydium devnet API and match by mints
+  async findDevnetPoolByMints(baseMint: string, quoteMint: string) {
+    const url = "https://api-v3-devnet.raydium.io/amm/pools?limit=500";
+    const res = await fetch(url);
+    const body = await res.json();
+    const pools = (body.data || body) as any[];
+    const pool = pools.find(p =>
+      (p.baseMint === baseMint && p.quoteMint === quoteMint) ||
+      (p.baseMint === quoteMint && p.quoteMint === baseMint)
+    );
+    if (!pool) throw new Error("No devnet pool found for pair. You may need to create/fund a pool on devnet.");
+    return pool;
+  }
+
+  // Map API pool object to PoolKeys (try common field names)
+  async getPoolKeysFromApi(poolObj: any): Promise<PoolKeys> {
     return {
-      id: "58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2",
-      authority: "5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1",
-      openOrders: "HRk9CMrpq7Jn9sh7mzxE8CChHG2dGZjkre4dgNivy1BF",
-      targetOrders: "HRk9CMrpq7Jn9sh7mzxE8CChHG2dGZjkre4dgNivy1BF", // Same as openOrders for this pool
-      coinVault: "5uWjwn9dRzJHBxdwYF8ZgXXsEJNxgwVaAQMiKjbhvkPd",
-      pcVault: "76nuLhjYy3MfMbpJmTTGRLEiEqFHdyDphCyoVssrHdN",
-      marketId: "8BnEgHoWFysVcuFFX7QztDmzuH8r5ZFvyP3sYwn1XTh6",
-      marketBids: "14ivtgssEBoBjuZJtSAPKYgpUK7DmnSwuPMqJoVTSgKJ",
-      marketAsks: "CEQdAFKdycHugujQg9k2wbmxjcpdYZyVLfV9WerTnafJ",
-      marketEventQueue: "5KKsLVU6TcbVDK4BS6K1DGDxnh4Q9xjYJ8XaDCG5t8ht",
-      marketCoinVault: "36c6YqAwyGKQG66XEp2dJc5JqjaBNv7sVghEtJv4c7u6",
-      marketPcVault: "8CFo8bL8mZQK8abbFyypFMwEDd8tVJjHTTojMLgQTUSZ",
-      marketAuthority: "CTz5UMLQm2SRWHzQnU62Pi4yJqbNGjgRBHqqp6oDHfF7",
-      marketProgramId: "srmqPvymJeFKQ4zGQed1GFppgkRHL9kaELCbyksJtPX"
+      id: poolObj.ammId || poolObj.id || poolObj.ammIdPublicKey || poolObj.amm_id,
+      authority: poolObj.ammAuthority || poolObj.authority || poolObj.ammAuthorityPublicKey,
+      openOrders: poolObj.openOrders || poolObj.ammOpenOrders,
+      targetOrders: poolObj.targetOrders || poolObj.ammTargetOrders || poolObj.openOrders,
+      coinVault: poolObj.baseVault || poolObj.poolCoinTokenAccount || poolObj.ammBaseVault,
+      pcVault: poolObj.quoteVault || poolObj.poolPcTokenAccount || poolObj.ammQuoteVault,
+      marketId: poolObj.marketId || poolObj.serumMarket || poolObj.market,
+      marketBids: poolObj.marketBids,
+      marketAsks: poolObj.marketAsks,
+      marketEventQueue: poolObj.marketEventQueue,
+      marketCoinVault: poolObj.marketCoinVault || poolObj.marketCoinVaultAccount,
+      marketPcVault: poolObj.marketPcVault || poolObj.marketPcVaultAccount,
+      marketAuthority: poolObj.marketAuthority || poolObj.serumVaultSigner,
+      marketProgramId: poolObj.marketProgramId || poolObj.serumProgramId || poolObj.marketProgram,
     };
   }
 
   async executeAtomicSwap(
-    poolId: string,
+    baseMintStr: string,
+    quoteMintStr: string,
     amountIn: number,
     slippage: number = 0.01
   ): Promise<string> {
-    console.log("Starting atomic round-trip swap...");
-    
-    // Initialize Raydium if not done
-    if (!this.raydium) {
-      await this.initializeRaydium();
-    }
+    if (!this.raydium) await this.initializeRaydium();
 
-    // Get pool information - use hardcoded values for devnet testing
-    const poolKeys = await this.getPoolKeys(poolId);
-    console.log("Pool keys retrieved");
+    // find pool on devnet (throws if not found)
+    const poolObj = await this.findDevnetPoolByMints(baseMintStr, quoteMintStr);
+    const poolKeys = await this.getPoolKeysFromApi(poolObj);
 
-    // Use mock pool data for devnet testing to avoid RPC API key issues
-    const baseReserve = new BN("1000000000000"); // 1000 SOL
-    const quoteReserve = new BN("200000000000"); // 200k USDC (6 decimals)
+    // Use devnet program id for Raydium legacy AMM (adjust if your pool type differs)
+    const raydiumProgramPubkey = this.rpcUrl.includes("devnet")
+      ? new PublicKey("DRaya7Kj3aMWQSy19kSjvmuwq9docCHofyP9kanQGaav")
+      : new PublicKey("675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8");
 
-    // Calculate expected amounts with slippage
+    const solMint = new PublicKey(baseMintStr);
+    const tokenMint = new PublicKey(quoteMintStr);
+
+    // mocked reserves for on-chain calc (keep as before)
+    const baseReserve = new BN("1000000000000");
+    const quoteReserve = new BN("200000000000");
     const amountInLamports = new BN(amountIn * LAMPORTS_PER_SOL);
+
     const expectedOut = this.calculateAmountOut(amountInLamports, baseReserve, quoteReserve);
     const minAmountOutBuy = expectedOut.mul(new BN((1 - slippage) * 10000)).div(new BN(10000));
-    
-    // For sell, we'll use the amount we get from buy
     const expectedBackToSol = this.calculateAmountOut(expectedOut, quoteReserve, baseReserve);
     const minAmountOutSell = expectedBackToSol.mul(new BN((1 - slippage) * 10000)).div(new BN(10000));
-
-    // Get or create token accounts
-    const solMint = new PublicKey("So11111111111111111111111111111111111111112");
-    const tokenMint = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"); // USDC mainnet
 
     const userSolAccount = await getAssociatedTokenAddress(solMint, this.wallet.publicKey);
     const userTokenAccount = await getAssociatedTokenAddress(tokenMint, this.wallet.publicKey);
 
-    // Check if accounts exist and create if needed
     const solAccountInfo = await this.connection.getAccountInfo(userSolAccount);
     const tokenAccountInfo = await this.connection.getAccountInfo(userTokenAccount);
 
-    const preInstructions = [];
+    const preInstructions: any[] = [];
     if (!solAccountInfo) {
       preInstructions.push(
         createAssociatedTokenAccountInstruction(
@@ -142,7 +160,6 @@ class AtomicSwapClient {
       );
     }
 
-    // Execute atomic swap
     const tx = await this.program.methods
       .atomicRoundTripSwap(
         amountInLamports,
@@ -150,7 +167,7 @@ class AtomicSwapClient {
         minAmountOutSell
       )
       .accounts({
-        raydiumAmmProgram: new PublicKey("675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8"), // Mainnet Legacy AMM v4
+        raydiumAmmProgram: raydiumProgramPubkey,
         ammId: new PublicKey(poolKeys.id),
         ammAuthority: new PublicKey(poolKeys.authority),
         ammOpenOrders: new PublicKey(poolKeys.openOrders),
@@ -173,15 +190,10 @@ class AtomicSwapClient {
       .preInstructions(preInstructions)
       .rpc();
 
-    console.log("Atomic swap completed!");
-    console.log(`Transaction: https://explorer.solana.com/tx/${tx}?cluster=devnet`);
-    
     return tx;
   }
 
   private calculateAmountOut(amountIn: BN, reserveIn: BN, reserveOut: BN): BN {
-    // Simple AMM calculation: (amountIn * reserveOut) / (reserveIn + amountIn)
-    // With 0.25% fee: amountInWithFee = amountIn * 9975 / 10000
     const amountInWithFee = amountIn.mul(new BN(9975));
     const numerator = amountInWithFee.mul(reserveOut);
     const denominator = reserveIn.mul(new BN(10000)).add(amountInWithFee);
@@ -189,43 +201,32 @@ class AtomicSwapClient {
   }
 }
 
-// Main execution
+// Main
 async function main() {
-  // Use mainnet for testing since we have mainnet pool keys
-  const RPC_ENDPOINTS = [
-    "https://api.mainnet-beta.solana.com",
-    "https://solana-api.projectserum.com",
-    "https://rpc.ankr.com/solana"
-  ];
-  
-  const RPC_URL = process.env.RPC_URL || RPC_ENDPOINTS[0];
-  const PRIVATE_KEY = process.env.PRIVATE_KEY || "4NjBxPbjjnkQqqJkh8TdCoQFMmg6UfBHDuX37VYFmScqHd3kAk7pN4EyPc3opCP3hEwQzKh5qh6qq54B34oqkebQ";
-  const POOL_ID = "58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2"; // SOL-USDC pool (mainnet)
-  const AMOUNT_SOL = 0.01; // 0.01 SOL
+  const RPC_URL = process.env.RPC_URL || "https://api.devnet.solana.com";
+  const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
+  if (!PRIVATE_KEY) { console.error("Set PRIVATE_KEY"); process.exit(1); }
 
-  if (!PRIVATE_KEY) {
-    console.error("Please set PRIVATE_KEY environment variable");
-    process.exit(1);
-  }
+  // Devnet wrapped SOL & devnet USDC
+  const WRAPPED_SOL_MINT = "So11111111111111111111111111111111111111112";
+  const DEVNET_USDC_MINT = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU";
 
+  const POOL_BASE = WRAPPED_SOL_MINT;
+  const POOL_QUOTE = DEVNET_USDC_MINT;
+  const AMOUNT_SOL = 0.01;
+
+  const client = new AtomicSwapClient(RPC_URL, PRIVATE_KEY);
+  console.log(`Wallet: ${client.wallet.publicKey.toString()}`);
+  console.log(`Pair: ${POOL_BASE} / ${POOL_QUOTE}`);
   try {
-    const client = new AtomicSwapClient(RPC_URL, PRIVATE_KEY);
-    
-    console.log(`Wallet: ${client.wallet.publicKey.toString()}`);
-    console.log(`Pool: ${POOL_ID}`);
-    console.log(`Amount: ${AMOUNT_SOL} SOL`);
-    
-    const signature = await client.executeAtomicSwap(POOL_ID, AMOUNT_SOL);
-    console.log(`Success! Transaction: ${signature}`);
-    
-  } catch (error) {
-    console.error("Error:", error);
+    const sig = await client.executeAtomicSwap(POOL_BASE, POOL_QUOTE, AMOUNT_SOL);
+    console.log("Tx:", sig);
+  } catch (e: any) {
+    console.error("Error:", e.message || e);
     process.exit(1);
   }
 }
 
-if (require.main === module) {
-  main();
-}
+if (require.main === module) main();
 
 export { AtomicSwapClient };
