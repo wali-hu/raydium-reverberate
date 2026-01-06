@@ -1,6 +1,15 @@
 #!/bin/bash
-echo "Building Solana program..."
-cargo build-bpf
-echo "Deploying to devnet..."
-solana program deploy target/deploy/atomic_round_trip.so --url devnet
-echo "Deployment completed!"
+
+echo "🔨 Building Atomic Swap Program..."
+
+# Build the program
+anchor build
+
+if [ $? -eq 0 ]; then
+    echo "✅ Build successful!"
+    echo "📁 Program built in target/deploy/"
+    ls -la target/deploy/
+else
+    echo "❌ Build failed!"
+    exit 1
+fi
