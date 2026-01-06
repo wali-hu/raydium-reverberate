@@ -15,7 +15,9 @@
   "include": [
     "bots/**/*",
     "config/**/*",
-    "src/**/*"
+    "src/**/*",
+    "client/**/*",
+    "*.ts"
   ],
   "exclude": [
     "node_modules",
