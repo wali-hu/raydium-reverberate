@@ -14,6 +14,7 @@ interface PoolKeys {
   id: string;
   authority: string;
   openOrders: string;
+  targetOrders: string;
   coinVault: string;
   pcVault: string;
   marketId: string;
@@ -65,6 +66,7 @@ class AtomicSwapClient {
       id: "58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2",
       authority: "5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1",
       openOrders: "HRk9CMrpq7Jn9sh7mzxE8CChHG2dGZjkre4dgNivy1BF",
+      targetOrders: "HRk9CMrpq7Jn9sh7mzxE8CChHG2dGZjkre4dgNivy1BF", // Same as openOrders for this pool
       coinVault: "5uWjwn9dRzJHBxdwYF8ZgXXsEJNxgwVaAQMiKjbhvkPd",
       pcVault: "76nuLhjYy3MfMbpJmTTGRLEiEqFHdyDphCyoVssrHdN",
       marketId: "8BnEgHoWFysVcuFFX7QztDmzuH8r5ZFvyP3sYwn1XTh6",
@@ -152,6 +154,7 @@ class AtomicSwapClient {
         ammId: new PublicKey(poolKeys.id),
         ammAuthority: new PublicKey(poolKeys.authority),
         ammOpenOrders: new PublicKey(poolKeys.openOrders),
+        ammTargetOrders: new PublicKey(poolKeys.targetOrders),
         poolCoinTokenAccount: new PublicKey(poolKeys.coinVault),
         poolPcTokenAccount: new PublicKey(poolKeys.pcVault),
         serumProgramId: new PublicKey(poolKeys.marketProgramId),

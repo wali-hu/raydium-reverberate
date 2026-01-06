@@ -75,7 +75,7 @@ pub fn create_swap_instruction(
     })
 }
 
-declare_id!("HbiVxY1bVwZmsC18H8yzFk6tc2Vj2pKKS5BXHThXwVcG");
+declare_id!("8yzZotqZyTWEqodmMGjvshiW4RAqLdeS4KrNLk6kNobN");
 
 #[program]
 pub mod atomic_swap {

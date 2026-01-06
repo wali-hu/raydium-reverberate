@@ -3,10 +3,10 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-atomic_swap = "HbiVxY1bVwZmsC18H8yzFk6tc2Vj2pKKS5BXHThXwVcG"
+atomic_swap = "8yzZotqZyTWEqodmMGjvshiW4RAqLdeS4KrNLk6kNobN"
 
 [programs.devnet]
-atomic_swap = "HbiVxY1bVwZmsC18H8yzFk6tc2Vj2pKKS5BXHThXwVcG"
+atomic_swap = "8yzZotqZyTWEqodmMGjvshiW4RAqLdeS4KrNLk6kNobN"
 
 [registry]
 url = "https://api.apr.dev"
