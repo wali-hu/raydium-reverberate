@@ -1,13 +1,14 @@
 #!/bin/bash
 
-# Build the program
-echo "Building Solana program..."
-cargo build-sbf --manifest-path=Cargo.toml --sbf-out-dir=target/deploy
+echo "Deploying Atomic Swap Program..."
 
-# Deploy to devnet
-echo "Deploying to devnet..."
-solana config set --url devnet
-solana program deploy target/deploy/atomic_swap.so --keypair ~/.config/solana/id.json
+# Deploy the program
+anchor deploy
 
-echo "Deployment complete!"
-echo "Update the PROGRAM_ID in client.ts with the deployed program address."
+if [ $? -eq 0 ]; then
+    echo "Deployment successful!"
+    echo "Program deployed to Solana"
+else
+    echo "Deployment failed!"
+    exit 1
+fi
